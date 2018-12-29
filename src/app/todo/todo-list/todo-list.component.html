@@ -1,0 +1,58 @@
+<div
+     fxLayout
+     fxLayoutAlign="center">
+
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>Todos list</mat-card-title>
+    </mat-card-header>
+    <mat-card-content
+      *ngIf="errorMessage$ | async as error">
+      Error: {{ error }}
+    </mat-card-content>
+    <mat-card-content>
+      <form [formGroup]="todoListForm"
+        novalidate
+            fxLayout="column">
+        <mat-form-field>
+          <input
+            matInput
+            placeholder="What needs to be done?"
+            formControlName="title">
+            <button
+              [disabled]="todoListForm.invalid"
+              matSuffix
+              mat-icon-button>
+              <mat-icon
+                aria-label="Add todo"
+                (click)="addTodo();">add</mat-icon>
+            </button>
+          <mat-error
+            *ngIf="(title.errors && title.errors.required) && (title.dirty || title.touched)">title is required</mat-error>
+        </mat-form-field>
+      </form>
+
+      <mat-list
+        fxLayout="column">
+        <mat-list-item
+          *ngFor="let todo of todos$ | async; let i = index">
+          <mat-checkbox
+            fxFlex="80%"
+            (change)="updateTodo(todo)"
+            [(ngModel)]="todo.complete">
+            <span
+              [ngStyle]="{'text-decoration': todo.complete ? 'line-through' : 'none' }">{{todo.title}}</span>
+          </mat-checkbox>
+          <button
+            fxFlex
+            mat-icon-button>
+            <mat-icon
+              aria-label="Delete todo"
+              (click)="deleteTodo(todo)">delete</mat-icon>
+          </button>
+        </mat-list-item>
+      </mat-list>
+
+    </mat-card-content>
+  </mat-card>
+</div>
