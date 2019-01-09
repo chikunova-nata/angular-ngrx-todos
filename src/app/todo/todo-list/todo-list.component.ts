@@ -18,15 +18,15 @@ export class TodoListComponent implements OnInit {
   errorMessage$: Observable<string>;
   todoListForm: FormGroup;
 
-  constructor(private store: Store<fromStore.State>,
+  constructor(private store$: Store<fromStore.State>,
               private fb: FormBuilder) { }
 
 
   get title() { return this.todoListForm.get('title'); }
   ngOnInit() {
-    this.store.dispatch(new todoActions.Load());
-    this.todos$ = this.store.pipe(select(todoSelectors.getTodos));
-    this.errorMessage$ = this.store.pipe(select(todoSelectors.getError));
+    this.store$.dispatch(new todoActions.Load());
+    this.todos$ = this.store$.select(todoSelectors.selectAllTodos);
+    this.errorMessage$ = this.store$.pipe(select(todoSelectors.getError));
 
     this.todoListForm = this.fb.group({
       title: ['', [Validators.required, Validators.minLength(1)]]
@@ -34,16 +34,16 @@ export class TodoListComponent implements OnInit {
   }
 
   addTodo(): void {
-    this.store.dispatch(new todoActions.CreateTodo(this.todoListForm.value));
+    this.store$.dispatch(new todoActions.CreateTodo(this.todoListForm.value));
     this.todoListForm.reset();
   }
 
   updateTodo(todo): void {
-    this.store.dispatch(new todoActions.UpdateTodo(todo));
+    this.store$.dispatch(new todoActions.UpdateTodo(todo));
   }
 
   deleteTodo(todo: Todo): void {
-    this.store.dispatch(new todoActions.DeleteTodo(todo.id));
+    this.store$.dispatch(new todoActions.DeleteTodo({ id: todo.id}));
   }
 
 }

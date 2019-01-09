@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Action } from '@ngrx/store';
 import { Actions, Effect, ofType } from '@ngrx/effects';
-import { TodoActionTypes } from '../actions/todo.actions';
 
 import { Observable, of, throwError } from 'rxjs';
 import { mergeMap, map, catchError } from 'rxjs/operators';
@@ -18,7 +17,7 @@ export class TodoEffects {
   loadTodos$: Observable<Action> = this.actions$.pipe(
     ofType(todoActions.TodoActionTypes.Load),
     mergeMap((action: todoActions.Load) => this.todoService.getTodos().pipe(
-      map((todos: Todo[]) => (new todoActions.LoadSuccess(todos))),
+      map((todos) => (new todoActions.LoadSuccess({todos: todos}))),
       catchError(err => of(new todoActions.LoadFail(err)))
       )
     )
@@ -29,7 +28,7 @@ export class TodoEffects {
     ofType(todoActions.TodoActionTypes.CreateTodo),
     map((action: todoActions.CreateTodo) => action.payload),
     mergeMap((todo: Todo) => this.todoService.createTodo(todo).pipe(
-      map(newTodo => (new todoActions.CreateTodoSuccess(newTodo))),
+      map(newTodo => (new todoActions.CreateTodoSuccess({todo: newTodo}))),
       catchError(err => of(new todoActions.CreateTodoFail(err)))
       )
     )
@@ -50,8 +49,8 @@ export class TodoEffects {
   deleteTodo$: Observable<Action> = this.actions$.pipe(
     ofType(todoActions.TodoActionTypes.DeleteTodo),
     map((action: todoActions.DeleteTodo) => action.payload),
-    mergeMap((todoId: number) => this.todoService.deleteTodo(todoId).pipe(
-      map(() => (new todoActions.DeleteTodoSuccess(todoId))),
+    mergeMap((todo: Todo) => this.todoService.deleteTodo(todo).pipe(
+      map(() => (new todoActions.DeleteTodoSuccess(todo))),
       catchError(err => of(new todoActions.DeleteTodoFail(err)))
       )
     )

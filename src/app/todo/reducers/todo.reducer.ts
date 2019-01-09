@@ -1,66 +1,66 @@
 import { Action } from '@ngrx/store';
 import { TodoActions, TodoActionTypes } from '../actions/todo.actions';
 import {Todo} from '../models/todo.model';
+import { featureAdapter, TodoState } from './todo.state';
+import { createEntityAdapter, EntityAdapter } from '@ngrx/entity';
 
-export interface TodoState {
-  showTodoId: boolean;
-  todos: Todo[];
-  error: string;
-}
+// export interface TodoState {
+//   todos: Todo[];
+//   error: string;
+// }
+//
+// export const initialState: TodoState = {
+//   todos: [],
+//   error: ''
+// };
 
-export const initialState: TodoState = {
-  showTodoId: false,
-  todos: [],
-  error: ''
-};
 
+export const adapter: EntityAdapter<Todo> = createEntityAdapter<Todo>();
+
+export const initialState: TodoState = featureAdapter.getInitialState(
+  {
+    todos: [],
+    error: null
+  }
+);
 export function reducer(state = initialState, action: TodoActions): TodoState {
   switch (action.type) {
-    // Load
     case TodoActionTypes.LoadSuccess:
-      return {
+      return adapter.addAll(action.payload.todos, {
         ...state,
-        todos: action.payload,
-        error: ''
-      };
+        error: null
+      });
     case TodoActionTypes.LoadFail:
       return {
         ...state,
         todos: [],
-        error: action.payload
+        error: action.payload.error
       };
-    // Create
     case TodoActionTypes.CreateTodoSuccess:
-      return {
+      return adapter.addOne(action.payload.todo, {
         ...state,
-        todos: [...state.todos, action.payload],
-        error: ''
-      };
+        error: null
+      });
     case TodoActionTypes.CreateTodoFail:
       return {
         ...state,
-        error: action.payload
+        error: action.payload.error
       };
-    // Update
-    case TodoActionTypes.UpdateTodoSuccess:
-      const updatedTodos = state.todos.map(item => action.payload.id === item.id ? action.payload : item);
-      return {
-        ...state,
-        todos: updatedTodos,
-        error: ''
-      };
+    // case TodoActionTypes.UpdateTodoSuccess:
+    //   return adapter.updateOne(action.payload, {
+    //     ...state,
+    //     error: null
+    //   });
     case TodoActionTypes.UpdateTodoFail:
       return {
         ...state,
         error: action.payload
       };
-    // Delete
     case TodoActionTypes.DeleteTodoSuccess:
-      return {
+      return adapter.removeOne(action.payload.id, {
         ...state,
-        todos: state.todos.filter(todo => todo.id !== action.payload),
-        error: ''
-      };
+        error: null
+      });
     case TodoActionTypes.DeleteTodoFail:
       return {
         ...state,
@@ -71,3 +71,12 @@ export function reducer(state = initialState, action: TodoActions): TodoState {
       return state;
   }
 }
+
+const {
+  selectIds,
+  selectEntities,
+  selectAll,
+  selectTotal,
+} = adapter.getSelectors();
+
+export const selectAllTodos = selectAll;

@@ -19,7 +19,7 @@ export class TodoService {
       );
   }
 
-  createTodo(todo: Todo): Observable<Todo> {
+  createTodo(todo): Observable<Todo> {
     const headers = new HttpHeaders({ 'Content-Type': 'application/json' });
     return this.http.post<Todo>(this.url, todo, { headers: headers })
       .pipe(
@@ -36,9 +36,9 @@ export class TodoService {
         catchError(this.handleError)
       );
   }
-  deleteTodo(id: number): Observable<{}> {
+  deleteTodo(todo: Todo): Observable<{}> {
     const headers = new HttpHeaders({ 'Content-Type': 'application/json' });
-    const url = `${this.url}/${id}`;
+    const url = `${this.url}/${todo.id}`;
     return this.http.delete<Todo>(url, { headers: headers })
       .pipe(
         catchError(this.handleError)
